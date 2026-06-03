@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Raw data
+raw_data_vk/*
+
+# Processed data
+processed_data_csv/*
+
+# Keep folder structure
+!raw_data_vk/.gitkeep
+!processed_data_csv/.gitkeep
+
+# Allow example files
+!processed_data_csv/example_*.csv
