@@ -2,8 +2,8 @@ import numpy as np
 
 from pathlib import Path
 
-from load_vk_data import parse_vk6_file
-from load_vk_data import parse_vk4_file_stitched_tile
+from scripts_.load_vk_data import parse_vk6_file
+from scripts_.load_vk_data import parse_vk4_file_stitched_tile
 
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from plot_vk_data import plot_height_data
+from scripts_.plot_vk_data import plot_height_data
 
 
 

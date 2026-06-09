@@ -1,5 +1,8 @@
-from load_csv_data import parse_keyence_csv_file, parse_created_csv_file
-from plot_vk_data import plot_height_data
+from scripts_.load_csv_data import parse_keyence_csv_file, parse_created_csv_file
+from scripts_.plot_vk_data import plot_height_data
+
+
+
 
 def plot_keyence_csv_height(file_name, colormap='viridis', scale='absolute'):
     '''

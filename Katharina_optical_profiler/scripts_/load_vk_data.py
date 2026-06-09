@@ -3,10 +3,10 @@ import struct
 import zipfile
 
 
-from preprocess_vk_data import extract_color_data
-from preprocess_vk_data import extract_img_data
-from preprocess_vk_data import extract_measurement_conditions
-from preprocess_vk_data import extract_offsets
+from scripts_.preprocess_vk_data import extract_color_data
+from scripts_.preprocess_vk_data import extract_img_data
+from scripts_.preprocess_vk_data import extract_measurement_conditions
+from scripts_.preprocess_vk_data import extract_offsets
 
 
 

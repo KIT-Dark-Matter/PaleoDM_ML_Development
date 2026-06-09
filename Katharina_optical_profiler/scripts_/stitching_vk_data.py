@@ -2,10 +2,10 @@ import glob
 import numpy as np
 import re
 
-from load_vk_data import parse_vk6_file
-from load_vk_data import parse_vk4_file_stitched_tile
-from plot_vk_data import plot_height_data
-from tilt_correction import baseplane_filter
+from scripts_.load_vk_data import parse_vk6_file
+from scripts_.load_vk_data import parse_vk4_file_stitched_tile
+from scripts_.plot_vk_data import plot_height_data
+from scripts_.tilt_correction import baseplane_filter
 
 
 
