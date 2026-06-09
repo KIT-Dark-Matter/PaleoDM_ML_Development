@@ -2,6 +2,12 @@
 
 Tools for processing, visualizing, and analysing surface height measurements acquired with a Keyence VK-X3000 optical profiler.
 
+The following code is largely based on these GitHub repositories: 
+* https://github.com/duserzym/Keyence_VKX3000_data_processing 
+* https://github.com/torkian/vk4-python-driver/tree/master
+
+Note: Not all of the functions included in 'scripts/' are necessary for stitching, but may be useful for other image processing purposes.
+
 
 ## Repository Structure
 

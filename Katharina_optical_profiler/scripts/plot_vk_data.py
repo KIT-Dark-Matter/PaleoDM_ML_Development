@@ -4,33 +4,6 @@ import matplotlib.pyplot as plt
 
 
 
-def plot_Vk4_reflected_light(Vk4File, colormap = 'gray', scale='absolute'):
-    '''
-    function for plotting the reflected light image of a VK4 file
-    the function uses the plot_reflected_light function to plot the image
-
-    Parameters:
-    Vk4File: dict, a dictionary containing the data of a VK4 file
-    colormap: str, the colormap to use for the plot
-    scale: str, the scale of the plot, must be 'absolute' or 'pixels'
-
-    Returns:
-    ax: matplotlib axis object, the axis object of the plot
-    '''
-
-    img_data = Vk4File['img_light_data']
-    img_width = img_data['width']
-    img_height = img_data['height']
-    img_array = img_data['data']
-
-    calibration = Vk4File['measurement_conditions']['x_length_per_pixel']
-    img_array = img_array.reshape(img_height, img_width)
-
-    return plot_reflected_light(img_array, img_width, img_height, calibration, colormap, scale)
-
-
-
-
 def plot_reflected_light(img_array, img_width, img_height, calibration, colormap='gray', scale='absolute'): #271217
     '''
     function for plotting the reflected light image of a VK4 file
@@ -67,38 +40,29 @@ def plot_reflected_light(img_array, img_width, img_height, calibration, colormap
 
 
 
-def plot_Vk4_height(Vk4File, data_type='original', colormap = 'viridis', scale='absolute'):
+def plot_vk4_reflected_light(Vk4File, colormap = 'gray', scale='absolute'):
     '''
-    function for plotting the height image of a VK4 file
-    the function uses the plot_height_data function to plot the image
+    function for plotting the reflected light image of a VK4 file
+    the function uses the plot_reflected_light function to plot the image
 
     Parameters:
     Vk4File: dict, a dictionary containing the data of a VK4 file
-    data_type: str, the type of height data to plot, must be 'original', 'baseplane', 'baseplane_fit', or 'baseplane_subtracted'
     colormap: str, the colormap to use for the plot
     scale: str, the scale of the plot, must be 'absolute' or 'pixels'
 
     Returns:
     ax: matplotlib axis object, the axis object of the plot
     '''
-    if data_type == 'original':
-        img_array = Vk4File['img_height_data']['data']
-    elif data_type == 'baseplane':
-        img_array = Vk4File['baseplane']
-    elif data_type == 'baseplane_fit':
-        img_array = Vk4File['baseplane_fit']
-    elif data_type == 'baseplane_subtracted':
-        img_array = Vk4File['baseplane_subtracted']
-    else:
-        raise ValueError('data_type must be either "original", "baseplane", "baseplane_fit", or "baseplane_subtracted"')
-    
-    img_width = Vk4File['img_height_data']['width']
-    img_height = Vk4File['img_height_data']['height']
+
+    img_data = Vk4File['img_light_data']
+    img_width = img_data['width']
+    img_height = img_data['height']
+    img_array = img_data['data']
 
     calibration = Vk4File['measurement_conditions']['x_length_per_pixel']
     img_array = img_array.reshape(img_height, img_width)
 
-    return plot_height_data(img_array, img_width, img_height, calibration, colormap, scale)
+    return plot_reflected_light(img_array, img_width, img_height, calibration, colormap, scale)
 
 
 
@@ -148,3 +112,39 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
     ax.set_title('Height image')
     
     return ax
+
+
+
+
+def plot_vk4_height(Vk4File, data_type='original', colormap = 'viridis', scale='absolute'):
+    '''
+    function for plotting the height image of a VK4 file
+    the function uses the plot_height_data function to plot the image
+
+    Parameters:
+    Vk4File: dict, a dictionary containing the data of a VK4 file
+    data_type: str, the type of height data to plot, must be 'original', 'baseplane', 'baseplane_fit', or 'baseplane_subtracted'
+    colormap: str, the colormap to use for the plot
+    scale: str, the scale of the plot, must be 'absolute' or 'pixels'
+
+    Returns:
+    ax: matplotlib axis object, the axis object of the plot
+    '''
+    if data_type == 'original':
+        img_array = Vk4File['img_height_data']['data']
+    elif data_type == 'baseplane':
+        img_array = Vk4File['baseplane']
+    elif data_type == 'baseplane_fit':
+        img_array = Vk4File['baseplane_fit']
+    elif data_type == 'baseplane_subtracted':
+        img_array = Vk4File['baseplane_subtracted']
+    else:
+        raise ValueError('data_type must be either "original", "baseplane", "baseplane_fit", or "baseplane_subtracted"')
+    
+    img_width = Vk4File['img_height_data']['width']
+    img_height = Vk4File['img_height_data']['height']
+
+    calibration = Vk4File['measurement_conditions']['x_length_per_pixel']
+    img_array = img_array.reshape(img_height, img_width)
+
+    return plot_height_data(img_array, img_width, img_height, calibration, colormap, scale)
