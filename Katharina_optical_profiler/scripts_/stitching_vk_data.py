@@ -2,6 +2,8 @@ import glob
 import numpy as np
 import re
 
+from pathlib import Path
+
 from scripts_.load_vk_data import parse_vk6_file
 from scripts_.load_vk_data import parse_vk4_file_stitched_tile
 from scripts_.plot_vk_data import plot_height_data
@@ -28,23 +30,25 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
     '''
     
     assert mode in ['orig', 'tilt_corr'], 'mode must be either "orig" or "tilt_corr"'
-    
-    files = glob.glob(file_name)
+
+    files = glob.glob(str(file_name))
+    files = [Path(f) for f in files]
+
     tiles = {}
 
     for f in files:
-        
-        m = re.search(r"_Y(\d+)_X(\d+)", f)
+
+        m = re.search(r"_Y(\d+)_X(\d+)", f.name)
         
         if m:
             
             y, x = int(m.group(1)), int(m.group(2))
 
-            if f.lower().endswith('.vk6'):
+            if f.suffix.lower() == '.vk6':
                 data_vk6 = parse_vk6_file(f)
                 data_vk4 = parse_vk4_file_stitched_tile(data_vk6['Vk4File'])
 
-            elif f.lower().endswith('.vk4'):
+            elif f.suffix.lower() == '.vk4':
                 with open(f, 'rb') as vk4_file:
                     data_vk4 = parse_vk4_file_stitched_tile(vk4_file)
 
@@ -61,7 +65,7 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
                 w = img['width']
                 data = img['data']
 
-                tile = img['data'].reshape(h,w)
+                tile = data.reshape(h,w)
                 tile = tile[:h-overlap_y_px, :w-overlap_x_px]
                 tiles[(y, x)] = tile
                 
@@ -76,6 +80,9 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
                 tile = tile[:h-overlap_y_px, :w-overlap_x_px]
                 tiles[(y, x)] = tile
 
+
+    if not tiles:
+        raise ValueError(f"No tiles found. Files processed: {[str(f) for f in files]}")
     
     # grid size
     max_y = max(y for y, _ in tiles)

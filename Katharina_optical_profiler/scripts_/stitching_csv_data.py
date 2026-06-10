@@ -2,6 +2,8 @@ import glob
 import numpy as np
 import re
 
+from pathlib import Path
+
 from scripts_.plot_vk_data import plot_height_data
 
 
@@ -28,7 +30,9 @@ def plot_stitched_height_image_from_csv(file_name, mode, overlap_x_um, overlap_y
 
     assert mode in ['orig', 'tilt_corr'], 'mode must be either "orig" or "tilt_corr"'
 
-    files = sorted(glob.glob(file_name))
+    files = glob.glob(str(file_name))
+    files = [Path(f) for f in files]
+
     tiles = {}
 
     # calibration assumed identical for all files
@@ -38,30 +42,29 @@ def plot_stitched_height_image_from_csv(file_name, mode, overlap_x_um, overlap_y
 
     for f in files:
 
-        m = re.search(r"_Y(\d+)_X(\d+)", f)
-        if not m:
-            continue
+        m = re.search(r"_Y(\d+)_X(\d+)", f.name)
 
-        y, x = int(m.group(1)), int(m.group(2))
+        if m: 
+            y, x = int(m.group(1)), int(m.group(2))
 
-        with open(f, 'r') as file:
-            lines = file.readlines()
+            with open(f, 'r') as file:
+                lines = file.readlines()
 
-        overlap_x_px = int(round(overlap_x_um / calibration))
-        overlap_y_px = int(round(overlap_y_um / calibration))
+            overlap_x_px = int(round(overlap_x_um / (calibration/1e6)))
+            overlap_y_px = int(round(overlap_y_um / (calibration/1e6)))
 
-        data = np.loadtxt(f, delimiter=';', skiprows=6)
+            data = np.loadtxt(f, delimiter=';', skiprows=6)
 
-        h, w = data.shape
-        tile = data[:h - overlap_y_px, :w - overlap_x_px]
+            h, w = data.shape
+            tile = data[:h - overlap_y_px, :w - overlap_x_px]
 
-        if mode == 'orig':
-            pass
+            if mode == 'orig':
+                pass
 
-        else:
-            pass
+            else:
+                pass
 
-        tiles[(y, x)] = tile
+            tiles[(y, x)] = tile
 
     # grid size
     max_y = max(y for y, _ in tiles)
