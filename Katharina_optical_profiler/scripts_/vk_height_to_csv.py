@@ -46,7 +46,8 @@ def vk_height_to_csv(file_name, output_dir=None):
 
 
     if output_dir is None:
-        output_dir = file_name.parent
+        name = file_name.parent.name
+        output_dir = Path("../processed_data_csv") / name
     else:
         output_dir = Path(output_dir)
 
@@ -82,7 +83,8 @@ def convert_vk_folder_to_csv(input_folder, output_folder=None):
     input_folder = Path(input_folder)
 
     if output_folder is None:
-        output_folder = input_folder / "csv_output"
+        name = input_folder.name
+        output_folder = Path("../processed_data_csv") / name
     else:
         output_folder = Path(output_folder)
 

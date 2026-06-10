@@ -85,17 +85,32 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
         raise ValueError(f"No tiles found. Files processed: {[str(f) for f in files]}")
     
     # grid size
-    max_y = max(y for y, _ in tiles)
-    max_x = max(x for _, x in tiles)
+    #max_y = max(y for y, _ in tiles)
+    #max_x = max(x for _, x in tiles)
+
+    ys = [y for y, _ in tiles]
+    xs = [x for _, x in tiles]
+
+    min_y, max_y = min(ys), max(ys)
+    min_x, max_x = min(xs), max(xs)
     
     # big image
+    #tile_h, tile_w = next(iter(tiles.values())).shape
+    #big = np.zeros((max_y * tile_h, max_x * tile_w))
+
     tile_h, tile_w = next(iter(tiles.values())).shape
-    big = np.zeros((max_y * tile_h, max_x * tile_w))
+
+    big_h = (max_y - min_y + 1) * tile_h
+    big_w = (max_x - min_x + 1) * tile_w
+
+    big = np.full((big_h, big_w), np.nan)
     
     # stitch
     for (y, x), tile in tiles.items():
-        y0 = (y - 1) * tile_h
-        x0 = (x - 1) * tile_w
+        #y0 = (y - 1) * tile_h
+        #x0 = (x - 1) * tile_w
+        y0 = (y - min_y) * tile_h
+        x0 = (x - min_x) * tile_w
         big[y0:y0 + tile_h, x0:x0 + tile_w] = tile
     
     # plot    

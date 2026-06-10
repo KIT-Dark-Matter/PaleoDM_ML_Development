@@ -83,6 +83,7 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
     ax: matplotlib axis object, the axis object of the plot
     '''
     assert scale in ['absolute', 'pixels'], 'scale must be either "absolute" or "pixels"'
+
     fig, ax = plt.subplots(figsize=(15, 15))
 
 
@@ -108,7 +109,12 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
         
 
     cbar = fig.colorbar(im, ax=ax, label='Height (µm)', orientation='vertical', shrink=0.5)
-    cbar.set_ticks(np.arange(int(np.floor(img_array.min()))+2, int(np.ceil(img_array.max())), 5))
+    
+    vmin = np.nanmin(img_array)
+    vmax = np.nanmax(img_array)
+
+    cbar.set_ticks(np.arange(int(np.floor(vmin))+2, int(np.ceil(vmax)), 5))
+    #cbar.set_ticks(np.arange(int(np.floor(img_array.min()))+2, int(np.ceil(img_array.max())), 5))
     ax.set_title('Height image')
     
     return ax
