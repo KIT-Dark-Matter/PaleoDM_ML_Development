@@ -110,10 +110,23 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
 
     cbar = fig.colorbar(im, ax=ax, label='Height (µm)', orientation='vertical', shrink=0.5)
     
-    vmin = np.nanmin(img_array)
-    vmax = np.nanmax(img_array)
+    #vmin = np.nanmin(img_array)
+    #vmax = np.nanmax(img_array)
 
-    cbar.set_ticks(np.arange(int(np.floor(vmin))+2, int(np.ceil(vmax)), 5))
+    vmin, vmax = im.get_clim()
+    
+    positions = np.linspace(vmin, vmax, 7)  # min + 5 interior + max
+
+    ticks = [vmin]
+    ticks += [int(round(x)) for x in positions[1:-1]]
+    ticks += [vmax]
+
+    # remove duplicates if a limit is already an integer
+    ticks = np.unique(ticks)
+
+    cbar.set_ticks(ticks)
+
+    #cbar.set_ticks(np.arange(int(np.floor(vmin)), int(np.ceil(vmax))+1, 1))
     #cbar.set_ticks(np.arange(int(np.floor(img_array.min()))+2, int(np.ceil(img_array.max())), 5))
     ax.set_title('Height image')
     
@@ -144,8 +157,10 @@ def plot_vk4_height(Vk4File, data_type='original', colormap = 'viridis', scale='
         img_array = Vk4File['baseplane_fit']
     elif data_type == 'baseplane_subtracted':
         img_array = Vk4File['baseplane_subtracted']
+    elif data_type == 'feature_enhanced':
+        img_array = Vk4File['feature_enhanced']
     else:
-        raise ValueError('data_type must be either "original", "baseplane", "baseplane_fit", or "baseplane_subtracted"')
+        raise ValueError('data_type must be either "original", "baseplane", "baseplane_fit", "baseplane_subtracted" or "feature_enhanced"')
     
     img_width = Vk4File['img_height_data']['width']
     img_height = Vk4File['img_height_data']['height']

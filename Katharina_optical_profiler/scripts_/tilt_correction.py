@@ -38,7 +38,7 @@ def fit_least_squares_plane(z):
 
 def baseplane_filter(Vk4File, percentage):
     height_data = Vk4File['img_height_data']['data']
-    baseplane = np.where(height_data < np.percentile(height_data, percentage), np.nan, height_data)
+    baseplane = np.where(height_data < np.nanpercentile(height_data, percentage), np.nan, height_data)
     baseplane = baseplane.reshape(Vk4File['img_height_data']['height'], Vk4File['img_height_data']['width'])
     baseplane_fit = fit_least_squares_plane(baseplane)
     Vk4File['baseplane'] = baseplane
