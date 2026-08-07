@@ -6,10 +6,10 @@ from pathlib import Path
 
 from scripts_.load_vk_data import parse_vk6_file
 from scripts_.load_vk_data import parse_vk4_file_stitched_tile
-from scripts_.plot_vk_data import plot_height_data
+from scripts_.plot_vk_data import plot_height_data, plot_reflected_light
 from scripts_.tilt_correction import baseplane_filter
 from scripts_.tilt_correction import fit_least_squares_plane
-from scripts_.feature_enhancement import feature_enhancement
+from scripts_.feature_enhancement import feature_enhancement_proceedings
 
 
 

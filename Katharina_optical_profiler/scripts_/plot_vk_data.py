@@ -21,19 +21,29 @@ def plot_reflected_light(img_array, img_width, img_height, calibration, colormap
     ax: matplotlib axis object, the axis object of the plot
     '''
     assert scale in ['absolute', 'pixels'], 'scale must be either "absolute" or "pixels"'
-    fig, ax = plt.subplots()
-    ax.imshow(img_array, cmap=colormap)
+    fig, ax = plt.subplots(figsize=(8, 8))
+
     if scale == 'absolute':
-        ax.set_xticks(np.linspace(0, img_width-1, 5))
-        ax.set_yticks(np.linspace(0, img_height-1, 5))
-        ax.set_xticklabels(np.round(np.linspace(0, (img_width-1)*calibration/1e6, 5), 2))
-        ax.set_yticklabels(np.round(np.linspace(0, (img_height-1)*calibration/1e6, 5), 2))
-        ax.set_xlabel('X (µm)', fontsize=12)
-        ax.set_ylabel('Y (µm)', fontsize=12)
+        ax.imshow(
+            img_array, 
+            cmap=colormap, 
+            extent=[0, img_width*calibration/1e6, 
+                    0, img_height*calibration/1e6]
+        )
+        #ax.set_xticks(np.linspace(0, img_width-1, 5))
+        #ax.set_yticks(np.linspace(0, img_height-1, 5))
+        #ax.set_xticklabels(np.round(np.linspace(0, (img_width-1)*calibration/1e6, 5), 2))
+        #ax.set_yticklabels(np.round(np.linspace(0, (img_height-1)*calibration/1e6, 5), 2))
+        ax.tick_params(axis='both', labelsize=18)
+        ax.set_xlabel('X (µm)', fontsize=20)
+        ax.set_ylabel('Y (µm)', fontsize=20)
+
     else:
-        ax.set_xlabel('X (pixels)', fontsize=12)
-        ax.set_ylabel('Y (pixels)', fontsize=12)
-    ax.set_title('Reflected Light image')
+        ax.imshow(img_array, cmap=colormap)
+        ax.tick_params(axis='both', labelsize=18)
+        ax.set_xlabel('X (pixels)', fontsize=20)
+        ax.set_ylabel('Y (pixels)', fontsize=20)
+    #ax.set_title('Reflected Light Image')
 
     return ax
 
@@ -84,7 +94,15 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
     '''
     assert scale in ['absolute', 'pixels'], 'scale must be either "absolute" or "pixels"'
 
-    fig, ax = plt.subplots(figsize=(15, 15))
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+
+    # set colorbar scale
+    if np.max(np.abs(img_array)) <= 0.5:
+        img_array = img_array*1e3
+        cbar_label = 'Height (nm)'
+    else:
+        cbar_label = 'Height (µm)'    
 
 
     if scale == 'absolute':
@@ -94,21 +112,23 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
             extent=[0, img_width*calibration/1e6,
                     0, img_height*calibration/1e6]
         )
-        ax.set_xlabel('X (µm)', fontsize=12)
-        ax.set_ylabel('Y (µm)', fontsize=12)
+        ax.tick_params(axis='both', labelsize=18)
+        ax.set_xlabel('X (µm)', fontsize=20)
+        ax.set_ylabel('Y (µm)', fontsize=20)
 
-        # ax.set_xticks(np.linspace(0, img_width-1, 10))
-        # ax.set_yticks(np.linspace(0, img_height-1, 10))
-        # ax.set_xticklabels(np.round(np.linspace(0, (img_width-1)*calibration/1e6, 10), 3))
-        # ax.set_yticklabels(np.round(np.linspace(0, (img_height-1)*calibration/1e6, 10), 3))
+        #ax.set_xticks(np.linspace(0, img_width-1, 10))
+        #ax.set_yticks(np.linspace(0, img_height-1, 10))
+        #ax.set_xticklabels(np.round(np.linspace(0, (img_width-1)*calibration/1e6, 10), 3))
+        #ax.set_yticklabels(np.round(np.linspace(0, (img_height-1)*calibration/1e6, 10), 3))
         
     else:
         im = ax.imshow(img_array, cmap=colormap)
-        ax.set_xlabel('X (pixels)', fontsize=12)
-        ax.set_ylabel('Y (pixels)', fontsize=12)
+        ax.ticks_params(labelsize=18)
+        ax.set_xlabel('X (pixels)', fontsize=20)
+        ax.set_ylabel('Y (pixels)', fontsize=20)
         
 
-    cbar = fig.colorbar(im, ax=ax, label='Height (µm)', orientation='vertical', shrink=0.5)
+    cbar = fig.colorbar(im, ax=ax, orientation='vertical', shrink=0.5)
     
     #vmin = np.nanmin(img_array)
     #vmax = np.nanmax(img_array)
@@ -125,10 +145,12 @@ def plot_height_data(img_array, img_width, img_height, calibration, colormap='vi
     ticks = np.unique(ticks)
 
     cbar.set_ticks(ticks)
+    cbar.ax.tick_params(labelsize=18)
+    cbar.set_label(cbar_label, fontsize=20)
 
     #cbar.set_ticks(np.arange(int(np.floor(vmin)), int(np.ceil(vmax))+1, 1))
     #cbar.set_ticks(np.arange(int(np.floor(img_array.min()))+2, int(np.ceil(img_array.max())), 5))
-    ax.set_title('Height image')
+    #ax.set_title('Height Image', fontsize=18)
     
     return ax
 

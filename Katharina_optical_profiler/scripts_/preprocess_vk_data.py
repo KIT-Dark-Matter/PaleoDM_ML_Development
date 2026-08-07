@@ -262,7 +262,7 @@ def crop_map(data, x0, x1, y0, y1):
     Parameters:
     data: np.array, the 2D map to crop
     x0: int, the starting x coordinate of the crop
-    x1: int, the ending x coordinate of the crop
+    x1: int, the ending x coordinate of the crop 
     y0: int, the starting y coordinate of the crop
     y1: int, the ending y coordinate of the crop
 
@@ -278,14 +278,14 @@ def crop_Vk4File_map(Vk4File, x0=None, x1=None, y0=None, y1=None):
     '''
     function for cropping a VK4 file
         this includes cropping all maps in the VK4 file and updating the width and height of the data
-        currently, they are height data, light image data, base plane, base plane fit, and base plane subtracted data
+        currently, they are height data, light image data, base plane, base plane fit, base plane subtracted and feature enhanced data
     
     Parameters:
     Vk4File: dict, a dictionary containing the data of a VK4 file
-    x0: int, the starting x coordinate of the crop
-    x1: int, the ending x coordinate of the crop
-    y0: int, the starting y coordinate of the crop
-    y1: int, the ending y coordinate of the crop
+    x0: int, the starting x coordinate of the crop in um
+    x1: int, the ending x coordinate of the crop in um
+    y0: int, the starting y coordinate of the crop in um
+    y1: int, the ending y coordinate of the crop in um
 
     Returns:
     Vk4File_copy: dict, a dictionary containing the cropped data of the VK4 file
@@ -310,6 +310,8 @@ def crop_Vk4File_map(Vk4File, x0=None, x1=None, y0=None, y1=None):
         Vk4File_copy['baseplane_fit'] = crop_map(Vk4File_copy['baseplane_fit'], x0, x1, y0, y1)
     if 'baseplane_subtracted' in Vk4File_copy:
         Vk4File_copy['baseplane_subtracted'] = crop_map(Vk4File_copy['baseplane_subtracted'], x0, x1, y0, y1)
+    if 'feature_enhanced' in Vk4File_copy:
+        Vk4File_copy['feature_enhanced'] = crop_map(Vk4File_copy['feature_enhanced'], x0, x1, y0, y1)
     # update the width and height of the data
     Vk4File_copy['img_height_data']['width'] = x1 - x0
     Vk4File_copy['img_height_data']['height'] = y1 - y0

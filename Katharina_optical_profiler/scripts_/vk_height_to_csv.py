@@ -4,16 +4,19 @@ from pathlib import Path
 
 from scripts_.load_vk_data import parse_vk6_file
 from scripts_.load_vk_data import parse_vk4_file_stitched_tile
+from scripts_.tilt_correction import baseplane_filter
+from scripts_.feature_enhancement import feature_enhancement
 
 
 
 
-def vk_height_to_csv(file_name, output_dir=None):
+def vk_height_to_csv(file_name, data_type='original', output_dir=None):
     '''
     Convert the height data in a single VK4/VK6 file to CSV.
 
     Parameters:
     file_name : str or path, input VK4 or VK6 file
+    data_type: str, the type of height data to convert to CSV, must be 'original', 'baseplane_subtracted' or 'feature_enhanced'
     output_dir : str or path or None, folder to save CSV; if None, same folder as input file
     
     '''
@@ -32,14 +35,23 @@ def vk_height_to_csv(file_name, output_dir=None):
         with open(file_name, "rb") as f:
             data_vk4 = parse_vk4_file_stitched_tile(f)
 
-    img = data_vk4["img_height_data"]
 
-    width = img["width"]
-    height = img["height"]
-    data = img["data"]
+    if data_type == 'original':
+        img_data = data_vk4['img_height_data']['data']
+    elif data_type == 'baseplane_subtracted':
+        img_data = baseplane_filter(data_vk4, 60)['baseplane_subtracted']
+    elif data_type == 'feature_enhanced':
+        img_data = feature_enhancement(data_vk4)['feature_enhanced']
+    else:
+        raise ValueError('data_type must be either "original", "baseplane_subtracted" or "feature_enhanced"')
 
-    if data.ndim == 1:
-        data = data.reshape((height, width), order="C")
+
+    width = data_vk4["img_height_data"]["width"]
+    height = data_vk4["img_height_data"]["height"]
+
+
+    if img_data.ndim == 1:
+        img_data = img_data.reshape((height, width), order="C")
 
     calib_xy = data_vk4["measurement_conditions"]["x_length_per_pixel"]
     calib_z = data_vk4["measurement_conditions"]["z_length_per_digit"]
@@ -53,18 +65,24 @@ def vk_height_to_csv(file_name, output_dir=None):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_file = output_dir / f"{file_name.stem}_csv.csv"
+
+    if data_type == 'original':
+        output_file = output_dir / f"{file_name.stem}_csv.csv"
+    elif data_type == 'baseplane_subtracted':
+        output_file = output_dir / f"{file_name.stem}_tiltcorr_csv.csv"
+    elif data_type == 'feature_enhanced':
+        output_file = output_dir / f"{file_name.stem}_enhanced_csv.csv"
 
 
     with open(output_file, "w") as f:
         f.write("Height Data Export\n")
-        f.write(f"File,{file_name.name}\n")
-        f.write(f"Width,{width}\n")
-        f.write(f"Height,{height}\n")
-        f.write(f"XY calibration (nm/pixel),{calib_xy}\n")
-        f.write(f"Z calibration (nm/digit),{calib_z}\n\n")
+        f.write(f"File: {file_name.name}\n")
+        f.write(f"Image width: {width}\n")
+        f.write(f"Image height: {height}\n")
+        f.write(f"XY calibration (nm/pixel): {calib_xy}\n")
+        f.write(f"Z calibration (nm/digit): {calib_z}\n\n")
 
-        np.savetxt(f, data, delimiter=";", fmt="%.3f")
+        np.savetxt(f, img_data, delimiter=";")
 
     return output_file
 
