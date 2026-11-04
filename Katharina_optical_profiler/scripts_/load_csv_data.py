@@ -72,6 +72,7 @@ def parse_created_csv_file(file_name):
         lines = file.readlines()
 
     calibration = float(lines[4].split(':')[1])
+    #calibration = float(lines[4].split(',')[1])
     
 
     # load height data

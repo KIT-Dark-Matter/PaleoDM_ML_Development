@@ -38,7 +38,8 @@ def plot_stitched_height_image_from_csv(file_name, mode, overlap_x_um, overlap_y
     # calibration assumed identical for all files
     with open(files[0], 'r') as file:
         lines = file.readlines()
-    calibration = float(lines[4].split(',')[1])
+    #calibration = float(lines[4].split(',')[1])
+    calibration = float(lines[4].split(':')[1])
 
     for f in files:
 

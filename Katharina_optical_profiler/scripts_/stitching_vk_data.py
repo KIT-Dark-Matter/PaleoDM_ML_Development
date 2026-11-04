@@ -14,11 +14,10 @@ from scripts_.feature_enhancement import feature_enhancement_proceedings
 
 
 
-
 def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_um):
     '''
     function for plotting the stitched image consisting of VK4 or VK6 file tiles
-
+    
     Parameters:
     file_name: str, the path to the VK4/VK6 files, file names must correspond to default name by Keyence: 
                'YearMonthDayHourMinuteSecond_Y*_X*.vk4' or 'YearMonthDayHourMinuteSecond_Y*_X*.vk6'
@@ -28,14 +27,14 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
     
     Returns:
     ax: matplotlib axis object, the axis object of the plot
-
+    
     '''
     
     assert mode in ['orig', 'tilt_corr', 'feat_enhanced'], 'mode must be either "orig", "tilt_corr" or "feat_enhanced"'
-
+    
     files = glob.glob(str(file_name))
     files = [Path(f) for f in files]
-
+    
     tiles = {}
 
     for f in files:
@@ -60,7 +59,8 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
             calibration = data_vk4['measurement_conditions']['x_length_per_pixel']
             overlap_x_px = int(round(overlap_x_um / (calibration/1e6)))
             overlap_y_px = int(round(overlap_y_um / (calibration/1e6)))
-            
+
+            #Abschnitt 4
             if mode == 'orig':
                 img = data_vk4['img_height_data']
                 h = img['height']
@@ -84,7 +84,8 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
             
             else:
                 data_vk4_tilt_corr = baseplane_filter(data_vk4, 20)
-                data_vk4_feat_enhanced = feature_enhancement(data_vk4_tilt_corr)
+                #data_vk4_feat_enhanced = feature_enhancement(data_vk4_tilt_corr)
+                data_vk4_feat_enhanced = feature_enhancement_proceedings(data_vk4_tilt_corr)
                 img = data_vk4_feat_enhanced['img_height_data']
                 h = img['height']
                 w = img['width']
@@ -93,6 +94,7 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
                 tile = data_vk4_feat_enhanced['feature_enhanced'].reshape(h, w)
                 tile = tile[:h-overlap_y_px, :w-overlap_x_px]
                 tiles[(y, x)] = tile
+            #Ende Abschnitt 4
 
 
 
