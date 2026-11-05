@@ -3,19 +3,20 @@ import numpy as np
 import re
 
 from pathlib import Path
+from matplotlib.colors import LinearSegmentedColormap
 
 from scripts_.load_vk_data import parse_vk6_file
-from scripts_.load_vk_data import parse_vk4_file_stitched_tile
+from scripts_.load_vk_data import parse_vk4_file, parse_vk4_file_stitched_tile
 from scripts_.plot_vk_data import plot_height_data, plot_reflected_light
 from scripts_.tilt_correction import baseplane_filter
 from scripts_.tilt_correction import fit_least_squares_plane
-from scripts_.feature_enhancement import feature_enhancement_proceedings
+from scripts_.feature_enhancement import feature_enhancement_proceedings, feature_enhancement_1, gaussian_filter_height
 
 
 
 
 
-def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_um):
+def plot_stitched_height_image_from_vk(file_name, mode):
     '''
     function for plotting the stitched image consisting of VK4 or VK6 file tiles
 
@@ -31,7 +32,7 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
 
     '''
     
-    assert mode in ['orig', 'tilt_corr', 'feat_enhanced'], 'mode must be either "orig", "tilt_corr" or "feat_enhanced"'
+    assert mode in ['orig', 'optical', 'tilt_corr', 'feat_enhanced'], 'mode must be either "orig", "optical", "tilt_corr" or "feat_enhanced"'
 
     files = glob.glob(str(file_name))
     files = [Path(f) for f in files]
@@ -48,18 +49,32 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
 
             if f.suffix.lower() == '.vk6':
                 data_vk6 = parse_vk6_file(f)
-                data_vk4 = parse_vk4_file_stitched_tile(data_vk6['Vk4File'])
+                data_vk4 = parse_vk4_file(data_vk6['Vk4File'])
 
             elif f.suffix.lower() == '.vk4':
                 with open(f, 'rb') as vk4_file:
-                    data_vk4 = parse_vk4_file_stitched_tile(vk4_file)
+                    data_vk4 = parse_vk4_file(vk4_file)
 
             else:
                 raise ValueError('File must be .vk4 or .vk6')
-            
-            calibration = data_vk4['measurement_conditions']['x_length_per_pixel']
-            overlap_x_px = int(round(overlap_x_um / (calibration/1e6)))
-            overlap_y_px = int(round(overlap_y_um / (calibration/1e6)))
+
+            calibration_x = data_vk4['measurement_conditions']['x_length_per_pixel']
+            calibration_y = data_vk4['measurement_conditions']['y_length_per_pixel']
+            calibration = [calibration_x, calibration_y]
+
+            # overlap
+            if data_vk4['measurement_conditions']['lens_magnification'] == 100:
+                overlap_x_px = int(round(150 / (calibration_x/1e6)))
+                overlap_y_px = int(round(120 / (calibration_y/1e6)))
+            if data_vk4['measurement_conditions']['lens_magnification'] == 200:
+                overlap_x_px = int(round(80 / (calibration_x/1e6)))
+                overlap_y_px = int(round(60 / (calibration_y/1e6)))            
+            if data_vk4['measurement_conditions']['lens_magnification'] == 500:
+                overlap_x_px = int(round(35 / (calibration_x/1e6)))
+                overlap_y_px = int(round(25 / (calibration_y/1e6)))
+            if data_vk4['measurement_conditions']['lens_magnification'] == 1500:
+                overlap_x_px = int(round(8 / (calibration_x/1e6)))
+                overlap_y_px = int(round(5 / (calibration_y/1e6)))
             
             if mode == 'orig':
                 img = data_vk4['img_height_data']
@@ -70,9 +85,19 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
                 tile = data.reshape(h,w)
                 tile = tile[:h-overlap_y_px, :w-overlap_x_px]
                 tiles[(y, x)] = tile
-                
+
+            elif mode == 'optical':
+                img = data_vk4['img_light_data']
+                h = img['height']
+                w = img['width']
+                data = img['data']
+
+                tile = data.reshape(h,w)
+                tile = tile[:h-overlap_y_px, :w-overlap_x_px]
+                tiles[(y, x)] = tile
+
             elif mode == 'tilt_corr':
-                data_vk4_tilt_corr = baseplane_filter(data_vk4, 20)
+                data_vk4_tilt_corr = baseplane_filter(data_vk4, 100)
                 img = data_vk4_tilt_corr['img_height_data']
                 h = img['height']
                 w = img['width']
@@ -82,9 +107,9 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
                 tile = tile[:h-overlap_y_px, :w-overlap_x_px]
                 tiles[(y, x)] = tile
             
-            else:
-                data_vk4_tilt_corr = baseplane_filter(data_vk4, 20)
-                data_vk4_feat_enhanced = feature_enhancement(data_vk4_tilt_corr)
+            elif mode == 'feat_enhanced':
+                data_vk4_tilt_corr = baseplane_filter(data_vk4, 100)
+                data_vk4_feat_enhanced = feature_enhancement_1(data_vk4_tilt_corr)
                 img = data_vk4_feat_enhanced['img_height_data']
                 h = img['height']
                 w = img['width']
@@ -131,15 +156,25 @@ def plot_stitched_height_image_from_vk(file_name, mode, overlap_x_um, overlap_y_
     # plot    
     height_px, width_px = big.shape
     #print(big.shape)
-    
-    ax = plot_height_data(
-        big,
-        width_px,
-        height_px,
-        calibration=calibration,
-        colormap='viridis',
-        scale='absolute'
-    )
+
+    if mode == 'optical':
+        ax = plot_reflected_light(
+            big,
+            width_px,
+            height_px,
+            calibration=calibration,
+            colormap='gray',
+            scale='absolute'
+        )
+
+    else:
+        ax = plot_height_data(
+            big,
+            width_px,
+            height_px,
+            calibration=calibration,
+            scale='absolute'
+        )
     #plt.savefig('Stitched image')
 
     return ax
@@ -249,7 +284,7 @@ def plot_stitched_height_image_from_vk_2(file_name, mode, overlap_x_um, overlap_
         width_px,
         height_px,
         calibration=calibration,
-        colormap='viridis',
+        colormap='plasma',
         scale='absolute'
     )
     #plt.savefig('Stitched image')

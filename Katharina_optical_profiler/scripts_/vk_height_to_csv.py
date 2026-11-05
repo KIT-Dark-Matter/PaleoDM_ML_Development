@@ -5,7 +5,7 @@ from pathlib import Path
 from scripts_.load_vk_data import parse_vk6_file
 from scripts_.load_vk_data import parse_vk4_file_stitched_tile
 from scripts_.tilt_correction import baseplane_filter
-from scripts_.feature_enhancement import feature_enhancement
+from scripts_.feature_enhancement import feature_enhancement_1
 
 
 
@@ -41,7 +41,7 @@ def vk_height_to_csv(file_name, data_type='original', output_dir=None):
     elif data_type == 'baseplane_subtracted':
         img_data = baseplane_filter(data_vk4, 60)['baseplane_subtracted']
     elif data_type == 'feature_enhanced':
-        img_data = feature_enhancement(data_vk4)['feature_enhanced']
+        img_data = feature_enhancement_1(data_vk4)['feature_enhanced']
     else:
         raise ValueError('data_type must be either "original", "baseplane_subtracted" or "feature_enhanced"')
 

@@ -310,6 +310,8 @@ def crop_Vk4File_map(Vk4File, x0=None, x1=None, y0=None, y1=None):
         Vk4File_copy['baseplane_fit'] = crop_map(Vk4File_copy['baseplane_fit'], x0, x1, y0, y1)
     if 'baseplane_subtracted' in Vk4File_copy:
         Vk4File_copy['baseplane_subtracted'] = crop_map(Vk4File_copy['baseplane_subtracted'], x0, x1, y0, y1)
+    if 'gaussian_filtered' in Vk4File_copy:
+        Vk4File_copy['gaussian_filtered'] = crop_map(Vk4File_copy['gaussian_filtered'], x0, x1, y0, y1)
     if 'feature_enhanced' in Vk4File_copy:
         Vk4File_copy['feature_enhanced'] = crop_map(Vk4File_copy['feature_enhanced'], x0, x1, y0, y1)
     # update the width and height of the data
