@@ -10,6 +10,7 @@ __pycache__/
 
 # Raw data
 raw_data_vk/*
+all_raw_data_vk/*
 
 # Processed data
 processed_data_csv/*

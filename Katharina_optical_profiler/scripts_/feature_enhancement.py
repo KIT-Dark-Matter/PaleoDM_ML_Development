@@ -8,15 +8,77 @@ from skimage.morphology import opening, disk, closing, black_tophat, white_topha
 
 
 
-def feature_enhancement_proceedings(Vk4File):
+def gaussian_filter_height(Vk4File, sigma):
 
-    background = gaussian_filter(Vk4File['baseplane_subtracted'], sigma=5)
+    background = gaussian_filter(Vk4File['baseplane_subtracted'], sigma=sigma)
     detail = Vk4File['baseplane_subtracted'] - background
 
-    p_low, p_high = np.percentile(detail, (1, 99))
+    Vk4File['gaussian_filtered'] = detail
+
+    return Vk4File
+
+
+
+def feature_enhancement_proceedings(Vk4File):
+
+    detail = gaussian_filter_height(Vk4File, sigma=5)['gaussian_filtered']
+
+    p_low, p_high = np.percentile(Vk4File['baseplane_subtracted'], (1, 99))
+
     detail =  np.clip(detail, p_low, p_high)
 
+
     Vk4File['feature_enhanced'] = detail
+
+    return Vk4File
+
+
+
+def feature_enhancement_1(Vk4File):
+
+    detail = gaussian_filter_height(Vk4File, sigma=5)['gaussian_filtered']
+
+    #p_low, p_high = np.percentile(detail, (1, 99))
+    #height_plot = np.ma.masked_outside(Vk4File['baseplane_subtracted'], np.min(Vk4File['baseplane_subtracted']), 1)
+
+    detail = np.clip(detail, a_min=-0.1, a_max=0.1)#a_min=None, a_max=0.14)
+
+    Vk4File['feature_enhanced'] = detail #masked_data #height_plot
+
+    return Vk4File
+
+
+
+def feature_enhancement_2(Vk4File):
+
+    detail = gaussian_filter_height(Vk4File, sigma=5)['gaussian_filtered']
+
+    #p_low, p_high = np.percentile(Vk4File['baseplane_subtracted'], (1, 99))
+    #height_plot = np.ma.masked_outside(Vk4File['baseplane_subtracted'], np.min(Vk4File['baseplane_subtracted']), 1)
+
+    detail =  np.clip(detail, a_min=-0.15, a_max=0)
+
+    Vk4File['feature_enhanced'] = detail #masked_data #height_plot
+
+    return Vk4File
+
+
+
+
+def feature_enhancement_3(Vk4File):
+
+    detail = gaussian_filter_height(Vk4File, sigma=5)['gaussian_filtered']
+
+    #p_low, p_high = np.percentile(Vk4File['baseplane_subtracted'], (1, 99))
+    #height_plot = np.ma.masked_outside(Vk4File['baseplane_subtracted'], np.min(Vk4File['baseplane_subtracted']), 1)
+
+    p_low, p_high = np.percentile(detail, (1, 90))
+    detail =  np.clip(detail, p_low, p_high)
+
+    #masked_data = np.where((detail >= -0.005), np.mean(detail), detail) 
+
+
+    Vk4File['feature_enhanced'] = detail #masked_data #height_plot
 
     return Vk4File
 
@@ -83,10 +145,10 @@ def feature_enhancement_single_gaussian_median_clip(Vk4File):
     detail = Vk4File['baseplane_subtracted'] - background
 
     median = np.median(detail)
-    p_low, p_high = np.percentile(detail, (1, 87))
+    p_low, p_high = np.percentile(detail, (1, 90))
 
     # Replace values above and below percentiles with the median
-    clipped = np.where((detail >= p_low) & (detail <= p_high), detail, median)
+    clipped = np.where((detail <= p_low) | (detail >= p_high), median, detail)
 
 
     Vk4File['feature_enhanced'] = clipped
@@ -126,13 +188,12 @@ def feature_enhancement_median_clip_high(Vk4File):
     threshold = np.percentile(detail, 87)
 
     # Replace values above threshold percentile with the median
-    clipped = np.where((detail <= threshold), detail, median)
+    clipped = np.where((detail >= threshold), detail, median)
 
 
     Vk4File['feature_enhanced'] = clipped
 
     return Vk4File
-
 
 
 
@@ -147,6 +208,26 @@ def feature_enhancement_cut_elevations_and_holes(Vk4File):
     # cut away very deep holes
     p1 = np.percentile(detail, 0.5)
     detail = np.maximum(detail, p1)
+
+
+    Vk4File['feature_enhanced'] = detail
+
+
+    return Vk4File
+
+
+
+def feature_enhancement_cut_elevations_and_holes_2(Vk4File):
+
+    background = gaussian_filter(Vk4File['baseplane_subtracted'], sigma=5)
+    detail = background - Vk4File['baseplane_subtracted']
+
+    # cut away elevations (everything that's still above baseplane)
+    detail = np.clip(detail, 0, None)
+
+    # cut away very deep holes
+    p1 = np.percentile(detail, 99.5)
+    detail = np.minimum(detail, p1)
 
 
     Vk4File['feature_enhanced'] = detail
@@ -174,6 +255,33 @@ def feature_enhancement_morphological(Vk4File, max_feature_radius=2):
     Vk4File['feature_enhanced'] = scratches_and_holes
 
     return Vk4File
+
+
+def feature_enhancement_diff_gaussians(Vk4File):
+
+    detail = difference_of_gaussians(Vk4File['baseplane_subtracted'], low_sigma=1, high_sigma=5)
+
+    #median = np.median(detail)
+    p_low, p_high = np.percentile(detail, (1, 87))
+
+    clipped = np.clip(detail, p_low, p_high)
+
+
+    # Stretch contrast for visualization
+    #detail = exposure.equalize_adapthist(detail, clip_limit=0.03)
+    clipped = exposure.equalize_adapthist(clipped, clip_limit=0.03)
+
+    Vk4File['feature_enhanced'] = detail #clipped
+
+    return Vk4File
+
+
+def feature_enhancement_stretch_contrast(Vk4File):
+
+    p_1, p_99 = np.percentile(Vk4File['baseplane_subtracted'], (1, 99))
+    stretched = exposure.rescale_intensity(Vk4File['baseplane_subtracted'], in_range=(p_1, p_99))
+
+    return stretched
 
 
 

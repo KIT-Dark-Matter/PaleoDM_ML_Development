@@ -19,6 +19,9 @@ def plot_keyence_csv_height(file_name, colormap='viridis', scale='absolute'):
 
     height_px, width_px = data.shape
 
+    # Chat GPT:
+    calibration = [calibration, calibration]
+
     ax = plot_height_data(
         data,
         width_px,
@@ -44,6 +47,9 @@ def plot_csv_height(file_name, colormap='viridis', scale='absolute'):
     '''
 
     data, calibration = parse_created_csv_file(file_name)
+
+    # Chat GPT:
+    calibration = [calibration, calibration]
 
     height_px, width_px = data.shape
 

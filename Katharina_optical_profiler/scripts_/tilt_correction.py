@@ -38,7 +38,14 @@ def fit_least_squares_plane(z):
 
 def baseplane_filter(Vk4File, percentage):
     height_data = Vk4File['img_height_data']['data']
-    baseplane = np.where(height_data < np.nanpercentile(height_data, percentage), np.nan, height_data)
+
+    #p_low, p_high = np.nanpercentile(height_data, (0, 0.2))
+    #baseplane = np.where((height_data < p_low) | (height_data > p_high), np.nan, height_data)
+    baseplane = np.where(height_data > np.nanpercentile(height_data, percentage), np.nan, height_data) 
+
+    # Keep pixels at or below the chosen percentile, and replace everything above it with NaN. 
+    #Since fit_least_squares_plane() ignores NaN, the plane is fitted only to those lower pixels.
+
     baseplane = baseplane.reshape(Vk4File['img_height_data']['height'], Vk4File['img_height_data']['width'])
     baseplane_fit = fit_least_squares_plane(baseplane)
     Vk4File['baseplane'] = baseplane
@@ -48,12 +55,13 @@ def baseplane_filter(Vk4File, percentage):
 
 
 
-def plot_baseplane(Vk4File):
+
+def plot_baseplane(Vk4File): # calibration missing in plot function
     ax = plot_height_data(Vk4File['baseplane'], Vk4File['img_height_data']['width'], Vk4File['img_height_data']['height'])
     return ax
 
 
 
-def plot_baseplane_fit(Vk4File):
+def plot_baseplane_fit(Vk4File): # calibration missing in plot function
     ax = plot_height_data(Vk4File['baseplane_fit'], Vk4File['img_height_data']['width'], Vk4File['img_height_data']['height'])
     return ax
