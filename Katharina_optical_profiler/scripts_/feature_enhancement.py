@@ -276,7 +276,23 @@ def feature_enhancement_diff_gaussians(Vk4File):
     return Vk4File
 
 
+# Chat GPT
 def feature_enhancement_stretch_contrast(Vk4File):
+
+    p_1, p_99 = np.percentile(
+        Vk4File['baseplane_subtracted'], (1, 99)
+    )
+
+    stretched = exposure.rescale_intensity(
+        Vk4File['baseplane_subtracted'],
+        in_range=(p_1, p_99)
+    )
+
+    Vk4File['feature_enhanced'] = stretched
+
+    return Vk4File
+
+def feature_enhancement_stretch_contrast_old(Vk4File):
 
     p_1, p_99 = np.percentile(Vk4File['baseplane_subtracted'], (1, 99))
     stretched = exposure.rescale_intensity(Vk4File['baseplane_subtracted'], in_range=(p_1, p_99))
